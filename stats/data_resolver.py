@@ -204,7 +204,10 @@ def get_involved_refactorings_by_refactoring_type():
     refactorings = get_accepted_refactorings()
     refactoring_regions = get_accepted_refactoring_regions()
     merge_commits = get_merge_commits()
-    repo_paths = ['']
+    repo_paths = [
+        'D:\\github\\repos\\javaparser',
+        'D:\\github\\repos\\junit5'
+    ]
 
     involved_refs_count_per_project = pd.DataFrame()
     rr_grouped_by_project = refactoring_regions.groupby('project_id')
@@ -214,6 +217,7 @@ def get_involved_refactorings_by_refactoring_type():
         print('Processing project {}'.format(counter))
 
         repo = Repo(repo_paths[counter-1])
+        path = 'merge_scenarios_by_ref_type_' + str(project_id) + '.csv'
 
         if project_id not in rr_grouped_by_project.groups:
             continue
@@ -232,8 +236,9 @@ def get_involved_refactorings_by_refactoring_type():
                 crh_rr = involved_crh_rr[(involved_crh_rr['project_id_x']==row['project_id'])&(involved_crh_rr['refactoring_id']==row['id'])]
                 line.append(str(crh_rr['merge_parent'].iloc[0]))
                 merge_commit_id = crh_rr['merge_commit_id'].iloc[0]
-                line.append(get_merge_scenario(repo, project_id, merge_commits, merge_commit_id))
+                line.append(";".join(get_merge_scenario(repo, project_id, merge_commits, merge_commit_id)))
 
+                print_to_csv(path, line)
         # for refactoring_index in involved_ref_per_type.index:
         #     if refactoring_index not in accepted_types:
         #         involved_ref_per_type = involved_ref_per_type.drop(refactoring_index)
@@ -249,11 +254,26 @@ def get_merge_scenario(repo, project_id, merge_commits, merge_commit_id):
     row_series = merge_commits[(merge_commits['project_id']==project_id)&(merge_commits['id']==merge_commit_id)]
     # merge_commit, parent1(ours), parent2(theirs)
     four_commits = []
-    four_commits.append()
+    four_commits.append(row_series['commit_hash'].iloc[0])
+    parent1 = row_series['parent_1'].iloc[0]
+    parent2 = row_series['parent_2'].iloc[0]
+    four_commits.append(parent1)
+    four_commits.append(parent2)
+    four_commits.append(get_merge_base(repo, parent1, parent2))
+    return four_commits
 
 def get_merge_base(repo, parent1, parent2):
-    merge_base_commit = repo.merge_base(parent1, parent2)
-    return str(merge_base_commit)
+    merge_base_commits = repo.merge_base(parent1, parent2)
+    return str(merge_base_commits[0])
+
+def print_to_csv(path, line):
+    if not os.path.isfile(path):
+        with open(path, "w") as open_w:
+            # header
+            open_w.write(
+                "ref_type;ref_detail;commit_hash;merge_parent;merge_commit;parent_1;parent_2;merge_base")
+    with open(path, 'a') as open_a:
+        open_a.write('\n' + ';'.join(line))
 
 # 20190310
 
@@ -494,4 +514,4 @@ if __name__ == '__main__':
     # print_stats()
     # get_conflicting_regions_by_involved_refactorings_per_merge_commit()
     # get_merge_scenario_involved_refactorings()
-    get_refactorings_by_refactoring_type()
+    get_involved_refactorings_by_refactoring_type()

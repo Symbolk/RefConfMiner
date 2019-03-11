@@ -1,8 +1,8 @@
 # Refactoring Analysis Results
-This repository contains the result of the [refactoring analysis](https://github.com/ualberta-smr/refactoring-analysis-results) used in our Saner '19 submission.
 
-### refactoring_analysis_dump_5_OCT_2018.sql.zip
-This is a sql dump of the database.
+Forked From: https://github.com/ualberta-smr/refactoring-analysis-results
+
+#### Modified to prepare experiment data for a related project. 
 
 ### database.properties	
 This file contains the database credentials.

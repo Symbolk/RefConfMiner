@@ -1,3 +1,16 @@
+# IDEA
+**/.idea/
+stats/.idea/*
+.idea/
+
+# temp data
+*.csv
+*.pickle
+*.pdf
+*.sql
+*.zip
+*.xml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -114,13 +127,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# IDEA
-stats/.idea/
-.idea/
-
-# temp data
-*.csv
-*.pickle
-*.pdf
-*.sql
-*.zip
