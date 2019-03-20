@@ -250,31 +250,6 @@ def get_involved_refactorings_by_refactoring_type():
 
     return involved_refs_count_per_project.T
 
-def get_merge_scenario(repo, project_id, merge_commits, merge_commit_id):
-    row_series = merge_commits[(merge_commits['project_id']==project_id)&(merge_commits['id']==merge_commit_id)]
-    # merge_commit, parent1(ours), parent2(theirs)
-    four_commits = []
-    four_commits.append(row_series['commit_hash'].iloc[0])
-    parent1 = row_series['parent_1'].iloc[0]
-    parent2 = row_series['parent_2'].iloc[0]
-    four_commits.append(parent1)
-    four_commits.append(parent2)
-    four_commits.append(get_merge_base(repo, parent1, parent2))
-    return four_commits
-
-def get_merge_base(repo, parent1, parent2):
-    merge_base_commits = repo.merge_base(parent1, parent2)
-    return str(merge_base_commits[0])
-
-def print_to_csv(path, line):
-    if not os.path.isfile(path):
-        with open(path, "w") as open_w:
-            # header
-            open_w.write(
-                "ref_type;ref_detail;commit_hash;merge_parent;merge_commit;parent_1;parent_2;merge_base")
-    with open(path, 'a') as open_a:
-        open_a.write('\n' + ';'.join(line))
-
 # 20190310
 
 
@@ -346,6 +321,81 @@ def get_conflicting_regions_by_involved_refactorings_per_merge_commit():
     rq1_table = cr_count_per_merge.join(involved_cr_count_per_merge, how='outer').fillna(0).astype(int)
     rq1_table['percent'] = rq1_table['involved_cr_count'] / rq1_table['cr_count']
     return rq1_table
+
+# 20190320
+def get_merge_scenarios_involved_refactorings():
+    conflicting_region_histories = get_conflicting_region_histories()
+    refactorings = get_accepted_refactorings()
+    refactoring_regions = get_accepted_refactoring_regions()
+    merge_commits = get_merge_commits()
+    repo_paths = [
+        'D:\\github\\repos\\javaparser',
+        'D:\\github\\repos\\junit5'
+    ]
+
+    refs_grouped_by_project = refactorings.groupby('project_id')
+    rr_grouped_by_project = refactoring_regions.groupby('project_id')
+    counter = 0
+    for project_id, project_crh in conflicting_region_histories.groupby('project_id'):
+        counter += 1
+        print('Processing project {}'.format(counter))
+
+        repo = Repo(repo_paths[counter-1])
+        path = 'merge_scenarios_involved_refactorings_' + str(project_id) + '.csv'
+
+        if project_id not in rr_grouped_by_project.groups:
+            continue
+        project_rrs = rr_grouped_by_project.get_group(project_id)
+        project_refs = refs_grouped_by_project.get_group(project_id)
+
+        crh_rr_combined = pd.merge(project_crh.reset_index(), project_rrs.reset_index(), on='commit_hash', how='inner')
+        involved = crh_rr_combined[crh_rr_combined.apply(record_involved, axis=1)]
+        for index, group in involved.groupby('merge_commit_id'):
+            for _, row in group.iterrows():
+                line = []
+                merge_commit_id = row['merge_commit_id']
+                line.append(str(row['merge_parent']))
+                line.append(";".join(get_merge_scenario(repo, project_id, merge_commits, merge_commit_id)))
+                refactoring_id = row['refactoring_id']
+                # source = project_rrs[(project_rrs['refactoring_id'] == refactoring_id) & (project_rrs['type'] == 's')]
+                # target = project_rrs[(project_rrs['refactoring_id'] == refactoring_id) & (project_rrs['type'] == 'd')]
+                #  get refactoring detail by refactoring_id
+                refactoring = project_refs[project_refs['id'] == refactoring_id]
+                line.append(refactoring['refactoring_type'].iloc[0])
+                line.append(refactoring['refactoring_detail'].iloc[0])
+                line.append(row['old_path'])
+                line.append(str(row['old_start_line']))
+                line.append(row['new_path'])
+                line.append(str(row['new_start_line']))
+                print_to_csv(path, line)
+
+# get four commits by merge_commit_id
+def get_merge_scenario(repo, project_id, merge_commits, merge_commit_id):
+    row_series = merge_commits[(merge_commits['project_id']==project_id)&(merge_commits['id']==merge_commit_id)]
+    # merge_commit, parent1(ours), parent2(theirs)
+    four_commits = []
+    four_commits.append(row_series['commit_hash'].iloc[0])
+    parent1 = row_series['parent_1'].iloc[0]
+    parent2 = row_series['parent_2'].iloc[0]
+    four_commits.append(parent1)
+    four_commits.append(parent2)
+    four_commits.append(get_merge_base(repo, parent1, parent2))
+    return four_commits
+
+def get_merge_base(repo, parent1, parent2):
+    merge_base_commits = repo.merge_base(parent1, parent2)
+    return str(merge_base_commits[0])
+
+def print_to_csv(path, line):
+    if not os.path.isfile(path):
+        with open(path, "w") as open_w:
+            # header
+            open_w.write(
+                "ref_type;ref_detail;commit_hash;merge_parent;merge_commit;parent_1;parent_2;merge_base")
+    with open(path, 'a') as open_a:
+        open_a.write('\n' + ';'.join(line))
+
+# 20190320
 
 def get_merge_scenario_involved_refactorings():
     conflicting_region_histories = get_conflicting_region_histories()
@@ -514,4 +564,5 @@ if __name__ == '__main__':
     # print_stats()
     # get_conflicting_regions_by_involved_refactorings_per_merge_commit()
     # get_merge_scenario_involved_refactorings()
-    get_involved_refactorings_by_refactoring_type()
+    # get_involved_refactorings_by_refactoring_type()
+    get_merge_scenarios_involved_refactorings()
