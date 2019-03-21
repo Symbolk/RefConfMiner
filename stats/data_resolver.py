@@ -329,8 +329,8 @@ def get_merge_scenarios_involved_refactorings():
     refactoring_regions = get_accepted_refactoring_regions()
     merge_commits = get_merge_commits()
     repo_paths = [
-        'D:\\github\\repos\\javaparser',
-        'D:\\github\\repos\\junit5'
+        'D:\\github\\repos\\gradle',
+        'D:\\github\\repos\\javaparser'
     ]
 
     refs_grouped_by_project = refactorings.groupby('project_id')
@@ -390,8 +390,8 @@ def print_to_csv(path, line):
     if not os.path.isfile(path):
         with open(path, "w") as open_w:
             # header
-            open_w.write(
-                "ref_type;ref_detail;commit_hash;merge_parent;merge_commit;parent_1;parent_2;merge_base")
+            # open_w.write("ref_type;ref_detail;commit_hash;merge_parent;merge_commit;parent_1;parent_2;merge_base")
+            open_w.write("merge_parent;merge_commit;parent1;parent2;merge_base;ref_type;ref_detail;old_path;old_start_line;new_path;new_start_line")
     with open(path, 'a') as open_a:
         open_a.write('\n' + ';'.join(line))
 
