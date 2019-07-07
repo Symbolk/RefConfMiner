@@ -1,13 +1,13 @@
 # IDEA
 **/.idea/
-stats/.idea/*
+stats/.idea/
 .idea/
 
 # temp data
 *.csv
 *.pickle
 *.pdf
-*.sql
+# *.sql
 *.zip
 *.xml
 

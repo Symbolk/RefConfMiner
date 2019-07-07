@@ -9,8 +9,8 @@ from git import Repo
 
 def get_db_connection():
     username = 'root'
-    password = 'cars123!'
-    database_name = 'saner19'
+    password = 'passwd'
+    database_name = 'refactoring_analysis'
     server = '127.0.0.1'
 
     with open("../database.properties", 'r') as db_file:
@@ -369,20 +369,20 @@ def get_conflicting_regions_by_involved_refactorings_per_merge_commit():
     return rq1_table
 
 
-# 20190320
+# analyze data generated in MySql database by https://github.com/Symbolk/RefactoringsInMergeCommits
 def get_merge_scenarios_involved_refactorings():
     # process one project each time
-    single_project_id = "2086"
-    project_name = "storm"
+    repo_id = "7"
+    repo_name = "storm"
     repo_paths = [
-        'D:\\github\\repos\\'+project_name
+        'D:\\github\\repos\\'+repo_name
     ]
-    path = 'merge_scenarios_involved_refactorings_' + project_name + '.csv'
+    csv_path = 'merge_scenarios_involved_refactorings_' + repo_name + '.csv'
 
-    conflicting_region_histories = get_conflicting_region_history_of(single_project_id)
-    refactorings = get_accepted_refactorings_of(single_project_id)
-    refactoring_regions = get_accepted_refactoring_regions_of(single_project_id)
-    merge_commits = get_merge_commits_of(single_project_id)
+    conflicting_region_histories = get_conflicting_region_history_of(repo_id)
+    refactorings = get_accepted_refactorings_of(repo_id)
+    refactoring_regions = get_accepted_refactoring_regions_of(repo_id)
+    merge_commits = get_merge_commits_of(repo_id)
 
     refs_grouped_by_project = refactorings.groupby('project_id')
     rr_grouped_by_project = refactoring_regions.groupby('project_id')
@@ -420,7 +420,7 @@ def get_merge_scenarios_involved_refactorings():
                 line.append(row['new_path'])
                 line.append(str(row['new_start_line']))
                 if four_commits != None:
-                    print_to_csv(path, line)
+                    print_to_csv(csv_path, line)
         # remove duplicates
 
 
@@ -457,7 +457,6 @@ def print_to_csv(path, line):
         open_a.write('\n' + ';'.join(line))
 
 
-# 20190320
 
 def get_merge_scenario_involved_refactorings():
     conflicting_region_histories = get_conflicting_region_histories()
