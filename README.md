@@ -6,8 +6,19 @@ Forked From: https://github.com/ualberta-smr/refactoring-analysis-results
 
 ### Requirements
 
-- Windows/Linux/macOS
-- MySql 5.7
+- Windows (recommended)/Linux/macOS
+- Python 3.7
+- MySQL 5.7
+- PyCharm
+
+### Environment Setup
+
+1. Open the clone repository as a project with PyCharm;
+2. Under the `stas/` directory of the cloned repository, run the following command in the terminal:
+
+```bash
+pip install -r requirements.txt 
+```
 
 ### Usage
 
