@@ -14,7 +14,7 @@ Forked From: https://github.com/ualberta-smr/refactoring-analysis-results
 ### Environment Setup
 
 1. Open the clone repository as a project with PyCharm;
-2. Under the `stas/` directory of the cloned repository, run the following command in the terminal:
+2. Under the `stats/` directory of the cloned repository, run the following command in the terminal:
 
 ```bash
 pip install -r requirements.txt 
