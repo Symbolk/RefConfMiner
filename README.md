@@ -24,7 +24,7 @@ pip install -r requirements.txt
 
 #### Collecting merge scenarios with refactoring-related merge conflict(s):
 
-1. Edit `database.properties` to config MySql:
+1. Edit `database.properties` to config MySQL:
 
    ```python
    development.driver=com.mysql.jdbc.Driver
@@ -46,7 +46,7 @@ pip install -r requirements.txt
        csv_path = 'merge_scenarios_involved_refactorings_' + repo_name + '.csv'
    ```
 
-3. Run the `main` function of `data_resolver.py` to get the csv file, which contains a summary of the collected data:
+3. Run the `main` function of `stats/data_resolver.py` to get the csv file, which contains a summary of the collected data:
 
    ![summary](https://github.com/Symbolk/RefConfMiner/blob/master/screenshots/summary.png)
 
